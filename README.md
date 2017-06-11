@@ -1,6 +1,3 @@
-# Data-Visualization-using-Dimple.js
-Created a polished data visualization that tells a story, allowing a reader to explore trends or patterns.
-
 P6 Data Visualization Project
 =============================
 
@@ -105,6 +102,11 @@ legends, aslo why is that all the year point is depicted in red, please
 change it, as it makes the chart look very bad. Animations are good,
 provides the information needed. however, please do add a story for each
 chart.
+
+Final Output Preview:
+=====================
+
+[Data Visualization Preview](http://bl.ocks.org/jbharoon89/raw/885fc202d9e8f0c12fc40a83e18fb9f5/)
 
 Resources
 =========
