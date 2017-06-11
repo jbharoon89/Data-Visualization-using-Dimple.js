@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Performance of Top Six US Airline's Jan 2010 - Mar 2017</title>
+  <meta charset="utf-8">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+  <style>
+    h2 {
+      text-align: center;
+    }
+    p {
+      text-align: center;
+    }
+  </style>
+    <script type="text/javascript">
+      function draw(data) {
+      
+      /*
+        D3.js setup code
+      */
+      	  // Creating a variable -margin
+          "use strict";
+          var margin = 75,
+              width = 1300 - margin,
+              height = 600 - margin;
+
+          d3.select("body")
+            .append("h2")
+            .text("Performance of Top 6 US civil airlines from Jan 2010 - Mar 2017");
+
+          // Function to add Text to the Chart.
+          function addText(svg, chart, text1) {
+          	svg.append("text")
+           .attr("x", chart._xPixels() + chart._widthPixels() / 2)
+           .attr("y", chart._yPixels() - 20)
+           .style("text-anchor", "middle")
+           .style("font-family", "courier new")
+           .style("font-weight", "bold")
+           .text(text1);
+          };
+
+          // Creating a Function -SVG
+          function createSVG() {
+            return d3.select("body")
+            .append("svg")
+              .attr("width", width + margin)
+              .attr("height", height + margin)
+            .append('g')
+                .attr('class','chart');
+          };
+
+      /*
+        Dimple.js Chart construction code
+      */
+      	  // Creating Chart 1
+          var svg = createSVG()
+          var myChart = new dimple.chart(svg, data);
+          var x = myChart.addTimeAxis("x", "year"); 
+          x.tickFormat = "%Y";
+          x.title = "Year";
+          var y = myChart.addMeasureAxis("y", "late_in_mins");
+          y.showGridlines = false;
+          y.title = "Overall Average Delay per Flight(minutes)";
+          var series1 = myChart.addSeries("carrier_name", dimple.plot.line);
+          var series2 = myChart.addSeries("carrier_name", dimple.plot.scatter);
+          // Adding OrderRule
+          series1.addOrderRule(["Delta Air Lines Inc.", "American Airlines Inc.", "SkyWest Airlines Inc.", "ExpressJet Airlines Inc.", "United Air Lines Inc.", "Southwest Airlines Co."]);
+          series2.getTooltipText = function (e) {
+            return [
+            "Airline Name: " + e.aggField[0],
+            "Average Delay per Flight: " + e.yValue];
+          };
+          addText(svg, myChart, "Overall Average Delay in Minutes");
+          // Assigning fixed colors
+          myChart.assignColor("SkyWest Airlines Inc.", "#F88017");
+          myChart.assignColor("Delta Air Lines Inc.", "purple");
+          myChart.assignColor("Southwest Airlines Co.", "#FFDB58");
+          myChart.assignColor("United Air Lines Inc.", "#667C26");
+          myChart.assignColor("ExpressJet Airlines Inc.", "#168EF7");
+          myChart.assignColor("American Airlines Inc.", "#438D80");
+          myChart.addLegend(width * .75, height * .80, width*0.25, 100, 'right', series1);
+          myChart.draw();
+
+          // Information for Chart 1
+          d3.select("body")
+            .append("p")
+            .text("The above chart depicts the Overall Average Delay per Flight in minutes, as can be noted in the chart, the Delta Airlines and the Southwest Airlines had the least overall delay, while Southwest Airlines performed pretty well in the year 2016 and 2017 until March. The worst performer was the ExpressJet Airlines.");
+
+          // Creating Chart 2
+          var svg1 = createSVG()
+          var myChart1 = new dimple.chart(svg1, data);
+          var x = myChart1.addTimeAxis("x", "year"); 
+          x.tickFormat = "%Y";
+          x.title = "Year";
+          var y = myChart1.addMeasureAxis("y", "overall_delay");
+          y.showGridlines = false;
+          y.title = "Average delay per Flight by Carrier(minutes)";
+          addText(svg1, myChart1, "Average Delay per Flight by Carrier in Minutes");
+          var series1 = myChart1.addSeries("carrier_name", dimple.plot.line);
+          var series2 = myChart1.addSeries("carrier_name", dimple.plot.scatter);
+          series1.addOrderRule(["Delta Air Lines Inc.", "American Airlines Inc.", "SkyWest Airlines Inc.", "ExpressJet Airlines Inc.", "United Air Lines Inc.", "Southwest Airlines Co."]);
+          series2.getTooltipText = function (e) {
+            return [
+            "Airline Name: " + e.aggField[0],
+            "Delay per Flight by Carrier : " + e.yValue];
+          };
+          myChart1.assignColor("SkyWest Airlines Inc.", "#F88017");
+          myChart1.assignColor("Delta Air Lines Inc.", "purple");
+          myChart1.assignColor("Southwest Airlines Co.", "#FFDB58");
+          myChart1.assignColor("United Air Lines Inc.", "#667C26");
+          myChart1.assignColor("ExpressJet Airlines Inc.", "#168EF7");
+          myChart1.assignColor("American Airlines Inc.", "#438D80");
+          myChart1.addLegend(width * .75, height * .80, width*0.25, 100, 'right', series1);
+          myChart1.draw();
+
+          // Information for Chart 2
+          d3.select("body")
+            .append("p")
+            .text("The above chart depicts the Average Delay per Flight by Carriers in minutes, as can be noted in the chart, the worst performer is the ExpressJet Airlines followed by the SkyWest Airlines. The airlines with the least delay is the Southwest Airlines followed by the American Airlines for the Year 2016 and 2017 until March.");
+
+          // Creating Chart 3
+          var svg2 = createSVG()
+          var myChart2 = new dimple.chart(svg2, data);
+          var x = myChart2.addTimeAxis("x", "year"); 
+          x.tickFormat = "%Y";
+          x.title = "Year";
+          var y = myChart2.addMeasureAxis("y", "on_time_percentage");
+          y.showGridlines = false;
+          y.title = "On-time performance in percentage(%)";
+          addText(svg2, myChart2, "On-time Performance by Carriers");
+          var series1 = myChart2.addSeries("carrier_name", dimple.plot.line);
+          var series2 = myChart2.addSeries("carrier_name", dimple.plot.scatter);
+          series1.addOrderRule(["Delta Air Lines Inc.", "American Airlines Inc.", "SkyWest Airlines Inc.", "ExpressJet Airlines Inc.", "United Air Lines Inc.", "Southwest Airlines Co."]);
+          series2.getTooltipText = function (e) {
+            return [
+            "Airline Name: " + e.aggField[0],
+            "On-time Perfromance: " + e.yValue + "%"];
+          };
+          myChart2.assignColor("SkyWest Airlines Inc.", "#F88017");
+          myChart2.assignColor("Delta Air Lines Inc.", "purple");
+          myChart2.assignColor("Southwest Airlines Co.", "#FFDB58");
+          myChart2.assignColor("United Air Lines Inc.", "#667C26");
+          myChart2.assignColor("ExpressJet Airlines Inc.", "#168EF7");
+          myChart2.assignColor("American Airlines Inc.", "#438D80");
+          myChart2.addLegend(width * .75, height * .80, width*0.25, 100, 'right', series1);
+          myChart2.draw();
+
+          // Information for Chart 3
+          d3.select("body")
+            .append("p")
+            .text("The above chart depicts the On-time performance for the Top 6 Airline Carries. As can be noted, Delta Airlines is the most consistent airlines from the rest of the carriers. As of the March 2017, the Delta Airlines had a on-time performance of 87% beating its nearest rival by almost 4%");
+        };
+      </script>
+  </head>
+<body>
+  <script type="text/javascript">
+  /*
+    Use D3 (not dimple.js) to load the CSV file
+    and pass the contents of it to the draw function
+    */
+  d3.csv(".\\Data\\final_dataset.csv", draw);
+  </script>
+</body>
+</html>

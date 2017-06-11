@@ -1,0 +1,151 @@
+---
+title: "Airlines EDA - Data Visualisation - Exploratory Phase"
+data: "Airlines Delay - Data obtained from RITA | BTA | Transtats Website"
+website: https://www.transtats.bts.gov/ 
+---
+
+This EDA is a part of Udacity project - Data Visualisation. All the explarotary phases of the data is carried out in R Programming Language.
+
+Please do note that the data consists of airline delays and performance in the time period of January 2010 - March 2017. The data consists of information regarding all airlines and airports in that time duration.
+
+```{r Load the Library Packages}
+
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+```
+
+
+```{r Load the Data}
+
+airline_df <- read.csv("751324507_32017_733_airline_delay_causes.csv")
+
+summary(airline_df)
+
+```
+
+A total of 106425 data points of 22 variables is observed.
+
+```{r Finding Unique Aircraft Carriers}
+
+# Using table function to categorise the carrier names.
+
+nrow(table(airline_df$carrier_name))
+
+```
+
+A total of 22 Civil Aircraft Carriers are present. 
+
+Calculating Late Arrivals of Top 6 Carriers.
+
+```{r Aircraft Arriving Late}
+
+#Calulating the Delay incurred.
+
+delay_df <- airline_df %>%
+  group_by(X.month, year, carrier_name) %>%
+  summarize(arrival = sum(arr_flights),
+            delayed = sum(X.arr_delay)) %>%
+  transform(late = delayed/arrival)
+
+# Removing any NA Values present
+
+delay_df <- delay_df[complete.cases(delay_df), ]
+
+# Selecting only top 75% of the Overall Airline Traffic and Analysing Them
+
+airline_agg <- delay_df %>%
+  group_by(carrier_name) %>%
+  summarize(month_avg = mean(arrival), arrival = sum(arrival))
+
+top6 <- subset(airline_agg, 
+                         month_avg >= quantile(month_avg, 0.75))$carrier_name
+
+top6
+
+# Final Data based on the Top 6 Carriers
+
+final_delay <- subset(delay_df, is.element(carrier_name, top6)) %>%
+  group_by(year, carrier_name) %>%
+  summarize(arrival = sum(arrival),
+            delayed = sum(delayed)) %>%
+  transform(late_in_mins = delayed/arrival)
+
+write.csv(final_delay, file = "delay.csv",row.names=FALSE)
+
+```
+
+Calculating On-Time performance of Top 6 Airlines.
+
+```{r Calculating On-Time Performance of Top 6}
+# On time performance calculation
+
+ontime_df <- airline_df %>%
+  group_by(X.month, year, carrier_name) %>%
+  summarize(arrival = sum(arr_flights),
+            delayed = sum(arr_del15)) %>%
+  transform(on_time = 100 - 100 * delayed/arrival)
+
+# Removing NA Values
+
+ontime_df <- ontime_df[complete.cases(ontime_df), ]
+
+# Final DataSet - On time performance for top 6 carriers
+
+ontime_final <- subset(ontime_df, is.element(carrier_name, top6)) %>%
+  group_by(year, carrier_name) %>%
+  summarize(arrival = sum(arrival),
+            delayed = sum(delayed)) %>%
+  transform(on_time_percentage = 100 - 100 * delayed/arrival)
+
+write.csv(ontime_final, file = "on_time.csv",row.names=FALSE)
+
+```
+
+From the information provided on the BTA Website, another important factors causing delay are the Air Carrier Delay and the National Aviation System Delay.Looking at the Air Carrier Delay and Calculating the same for the top 6 carriers.
+
+```{r Air Carrier Delay}
+
+# Carrier Delay - X.carrier_delay
+
+carrier_df <- airline_df %>%
+  group_by(X.month, year, carrier_name) %>%
+  summarize(delayed = sum(X.carrier_delay),
+            arrival = sum(arr_flights)) %>%
+  transform(overall_delay = delayed/arrival)
+
+# Removing NA Values
+
+carrier_df <- carrier_df[complete.cases(carrier_df), ]
+
+# Final Carrier DataSet - Top 6
+
+carrier_delay <- subset(carrier_df, is.element(carrier_name, top6)) %>%
+  group_by(year, carrier_name) %>%
+  summarize(delayed = sum(delayed),
+            arrival = sum(arrival)) %>%
+  transform(overall_delay = delayed/arrival)
+
+write.csv(carrier_delay, file = "carrier_delay.csv",row.names=FALSE)
+```
+
+```{r Merging the data by Year and Carrier Name}
+
+pre_final <- merge(final_delay, ontime_final,
+                       by = c("year", "carrier_name"))
+
+final_dataset <- merge(pre_final, carrier_delay,
+                       by = c("year", "carrier_name"))
+```
+
+```{r Dropping the Columns}
+
+keeps <- c("year", "carrier_name", "late_in_mins", "on_time_percentage",
+           "overall_delay")
+
+DF <- final_dataset[keeps]
+
+write.csv(DF, file = "final_dataset.csv",row.names=FALSE)
+```
+
